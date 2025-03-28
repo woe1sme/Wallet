@@ -2,6 +2,6 @@
 {
     public record SubWalletTransferFundsWriteModel : WalletTransferFundsWriteModel
     {
-        public long FamilyMemberId { get; set; }
+        public Guid FamilyMemberId { get; set; }
     }
 }

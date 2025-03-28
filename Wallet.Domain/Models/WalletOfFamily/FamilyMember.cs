@@ -9,7 +9,7 @@ namespace Wallet.Domain.Models.WalletOfFamily
 {
     public class FamilyMember : Owner
     {
-        public FamilyMember(long id, string name) : base(id, name)
+        public FamilyMember(Guid id, string name) : base(id, name)
         {
         }
     }

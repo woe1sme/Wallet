@@ -4,6 +4,6 @@ namespace Wallet.API.Models.WalletOfFamily;
 
 public record OwnerWriteModel : IWriteModel
 {
-    public long Id { get; set; }
-    public required string Name { get; init; }
+    public Guid Id { get; init; }
+    public string Name { get; init; }
 }

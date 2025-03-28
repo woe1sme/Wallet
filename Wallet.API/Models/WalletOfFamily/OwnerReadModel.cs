@@ -2,9 +2,9 @@
 
 namespace Wallet.API.Models.WalletOfFamily
 {
-    public record OwnerReadModel : IReadModel<long>
+    public record OwnerReadModel : IReadModel<Guid>
     {
-        public required long Id { get; init; }
+        public required Guid Id { get; init; }
         public string? Name { get; init; }
     }
 }

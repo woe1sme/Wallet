@@ -9,6 +9,8 @@ using Wallet.Infrastructure.Repositories;
 using WalletOfFamily = Wallet.Domain.Models.WalletOfFamily;
 using Wallet.Domain.Repositories;
 using Wallet.Domain.Models.AccountOfPerson;
+using MassTransit;
+using System.Reflection;
 
 namespace Wallet.API
 {
@@ -16,7 +18,13 @@ namespace Wallet.API
     {
         public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            // Pooling is disabled because of the following error:
+            //services.AddDbContext<WalletDBContext>(options =>
+            //{
+            //    options.UseLazyLoadingProxies();
+            //    options.UseNpgsql("Host=localhost;Port=5432;Database=walletdb;Username=postgres;Password=postgres");
+            //});
+
+            //Pooling is disabled because of the following error:
             // Unhandled exception. System.InvalidOperationException:
             if (Environment.GetEnvironmentVariable("CONNECTION_STRING") is string dockerConnectionString)
             {
@@ -67,7 +75,7 @@ namespace Wallet.API
         public static IServiceCollection AddCustomRepositories(this IServiceCollection services)
         {
             services.AddScoped<IRepository<WalletOfFamily.Wallet, long>, WalletRepository<WalletOfFamily.Wallet, long>>();
-            services.AddScoped<IRepository<WalletOfFamily.Family, long>, FamilyRepository<WalletOfFamily.Family, long>>();
+            services.AddScoped<IRepository<WalletOfFamily.Family, Guid>, FamilyRepository<WalletOfFamily.Family, Guid>>();
             services.AddScoped<ISubWalletRepository<WalletOfFamily.SubWallet, long>, SubWalletRepository<WalletOfFamily.SubWallet, long>>();
             services.AddScoped<IAccountRepository<Account, long>, AccountRepository<Account, long>>();
             return services;
@@ -91,6 +99,29 @@ namespace Wallet.API
                     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                     //options.JsonSerializerOptions.MaxDepth = 64; // Задаём максимальную глубину, если требуется
                 });
+            return services;
+        }
+    
+        public static IServiceCollection AddCustomMassTransit(this IServiceCollection services)
+        {
+            
+            services.AddMassTransit(x =>
+            {
+                //x.AddConsumers(Assembly.GetEntryAssembly());
+                x.AddConsumer<Consumers.FamilyConsumers.FamilyCreatedConsumer>();
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("rabbitmq", "/", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+
+                    cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
+
             return services;
         }
     }

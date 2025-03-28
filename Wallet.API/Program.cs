@@ -16,6 +16,7 @@ public class Program
         builder.Services.AddCustomJsonSerializer();
 
         builder.Services.AddControllers();
+        builder.Services.AddCustomMassTransit();
 
         var app = builder.Build();
 

@@ -8,9 +8,9 @@ public class FamilyMapping : Profile
 {
     public FamilyMapping()
     {
-        CreateMap<Family, FamilyReadModel>()
+        CreateMap<Domain.Models.WalletOfFamily.Family, FamilyReadModel>()
             .MaxDepth(3);
-        CreateMap<FamilyWriteModel, Family>();
+        CreateMap<FamilyWriteModel, Domain.Models.WalletOfFamily.Family>();
         CreateMap<HeadMember, HeadMemberReadModel>()
             .MaxDepth(3);
         CreateMap<HeadMemberWriteModel, HeadMember>();

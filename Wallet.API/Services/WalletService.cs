@@ -19,7 +19,7 @@ namespace Wallet.API.Services
     public class WalletService : IWalletService
     {
         private readonly IRepository<WalletOfFamily.Wallet, long> _walletRepository;
-        private readonly IRepository<WalletOfFamily.Family, long> _familyRepository;
+        private readonly IRepository<WalletOfFamily.Family, Guid> _familyRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<WalletService> _logger;
 
@@ -31,7 +31,7 @@ namespace Wallet.API.Services
         /// <param name="mapper">Сервис для маппинга объектов (обязательный)</param>
         /// <exception cref="WalletAPIException">Выбрасывается если свойство имеет NULL</exception>
         public WalletService(IRepository<WalletOfFamily.Wallet, long> walletRepository,
-            IRepository<WalletOfFamily.Family, long> familyRepository,
+            IRepository<WalletOfFamily.Family, Guid> familyRepository,
             ILogger<WalletService> logger,
             IMapper mapper)
         {
@@ -89,12 +89,12 @@ namespace Wallet.API.Services
         /// <param name="cancellation">Токен отмены операции</param>
         /// <returns>Созданная семья</returns>
         /// <exception cref="WalletAPIException">Непредвиденная ошибка</exception>
-        private async Task<Family?> CreateFamily(FamilyWriteModel newFamily, CancellationToken cancellation)
+        private async Task<WalletOfFamily.Family?> CreateFamily(FamilyWriteModel newFamily, CancellationToken cancellation)
         {
             try
             {
                 // Если семья не существует, создаем новую запись
-                Family? family = _mapper.Map<Family>(newFamily);
+                WalletOfFamily.Family? family = _mapper.Map<WalletOfFamily.Family>(newFamily);
                 await _familyRepository.AddAsync(family, cancellation);
                 await _familyRepository.SaveAsync(cancellation);
                 return family;

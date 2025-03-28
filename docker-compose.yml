@@ -3,17 +3,19 @@ version: '3.8'
 services:
   db_postgres:
     image: postgres:latest
-    container_name: postgres
+    container_name: wallet.postgres
     restart: always
     environment:
       POSTGRES_USER: artem
       POSTGRES_PASSWORD: Qq123456
       POSTGRES_DB: walletdb
-      POSTGERS_CONNECTION: Host=postgres;Port=5432;Database=walletdb;Username=artem;Password=Qq123456
+      POSTGERS_CONNECTION: Host=wallet.postgres;Port=5434;Database=walletdb;Username=artem;Password=Qq123456
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   pgadmin4:
     image: dpage/pgadmin4:latest
@@ -26,6 +28,25 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app-network
+
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: wallet.rabbitmq
+  #   environment:
+  #   - RabbitMqUser=guest
+  #   - RabbitMqPassword=guest
+  #   - RabbitMqVhost=/
+  #   ports:
+  #       - "5673:5672"
+  #       - "15673:15672"
+  #   networks:
+  #       - app-network
+  #   healthcheck:
+  #       test: ["CMD", "rabbitmq-diagnostics", "ping"]
+  #       interval: 10s
+  #       retries: 5
 
   wallet.api:
     image: wallet.api
@@ -36,8 +57,17 @@ services:
     environment: 
       CONNECTION_STRING: Host=postgres;Port=5432;Database=walletdb;Username=artem;Password=Qq123456
     ports:
-      - "8080:8080"
+      - "8088:8086"
+    depends_on:
+       # - rabbitmq
+        - db_postgres 
+    networks:
+      - app-network
 
 volumes:
   pgdata:
   pgadmin_data:
+
+networks:
+  app-network:
+    driver: bridge  
