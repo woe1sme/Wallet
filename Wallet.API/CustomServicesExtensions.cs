@@ -18,12 +18,6 @@ namespace Wallet.API
     {
         public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddDbContext<WalletDBContext>(options =>
-            //{
-            //    options.UseLazyLoadingProxies();
-            //    options.UseNpgsql("Host=localhost;Port=5432;Database=walletdb;Username=postgres;Password=postgres");
-            //});
-
             //Pooling is disabled because of the following error:
             // Unhandled exception. System.InvalidOperationException:
             if (Environment.GetEnvironmentVariable("CONNECTION_STRING") is string dockerConnectionString)
@@ -107,10 +101,10 @@ namespace Wallet.API
             
             services.AddMassTransit(x =>
             {
-                //x.AddConsumers(Assembly.GetEntryAssembly());
-                x.AddConsumer<Consumers.FamilyConsumers.FamilyCreatedConsumer>();
+                x.AddConsumers(Assembly.GetEntryAssembly());
                 x.UsingRabbitMq((context, cfg) =>
                 {
+                    //TO-DO Environment.GetEnvironmentVariable("") - hostname, virtual host, username, password
                     cfg.Host("rabbitmq", "/", h =>
                     {
                         h.Username("guest");
