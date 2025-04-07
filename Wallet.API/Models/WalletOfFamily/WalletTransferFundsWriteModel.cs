@@ -7,7 +7,7 @@ namespace Wallet.API.Models.WalletOfFamily;
 /// </summary>
 public record WalletTransferFundsWriteModel : IWriteModel
 {
-    public long FromWalletId { get; init; }
-    public long ToWalletId { get; init; }
+    public Guid FromWalletId { get; init; }
+    public Guid ToWalletId { get; init; }
     public decimal Amount { get; init; }
 }

@@ -6,10 +6,10 @@ namespace Wallet.Domain.Models.AccountOfPerson;
 
 public class Account : FinancialBase
 {
-    public Account(long id, decimal balance, Currency currency, string description, long profileId) : base(id, balance, currency)
+    public Account(Guid id, decimal balance, Currency currency, string description, Guid profileId) : base(id, balance, currency)
     {
         Description = description ?? throw new AccountException($"Property {nameof(description)} cannot be empty", new AggregateException(nameof(description)));
-        ProfileId = profileId > 0 ? profileId : throw new AccountException($"Property {nameof(profileId)} must be greater than 0", new AggregateException(nameof(description)));
+        ProfileId = profileId != Guid.Empty ? profileId : throw new AccountException($"Property {nameof(profileId)} must be greater than 0", new AggregateException(nameof(description)));
     }
 
     // Пустой конструктор
@@ -23,7 +23,7 @@ public class Account : FinancialBase
     /// <summary>
     ///  Id профиля пользователя
     /// </summary>
-    public long ProfileId { get; protected set; }
+    public Guid ProfileId { get; protected set; }
 
     /// <summary>
     /// Пополнить счет
@@ -53,7 +53,7 @@ public class Account : FinancialBase
     /// <param name="amount">сумма</param>
     /// <param name="profileId">Id пользователя делающего списание</param>
     /// <exception cref="AccountException">Ошибка при выполнение списания</exception>
-    public virtual void WriteOffMoney(decimal amount, long profileId)
+    public virtual void WriteOffMoney(decimal amount, Guid profileId)
     {
         if (ProfileId != profileId)
             throw new AccountException("Profile id mismatch");

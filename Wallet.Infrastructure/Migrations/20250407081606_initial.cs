@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,10 +15,9 @@ namespace Wallet.Infrastructure.Migrations
                 name: "Accounts",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    ProfileId = table.Column<long>(type: "bigint", nullable: false),
+                    ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false),
                     Currency = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -45,13 +43,12 @@ namespace Wallet.Infrastructure.Migrations
                 name: "Wallets",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     FamilyId = table.Column<Guid>(type: "uuid", nullable: false),
                     Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
-                    ParentWalletId = table.Column<long>(type: "bigint", nullable: true),
-                    WalletId = table.Column<long>(type: "bigint", nullable: true),
+                    ParentWalletId = table.Column<Guid>(type: "uuid", nullable: true),
+                    WalletId = table.Column<Guid>(type: "uuid", nullable: true),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false),
                     Currency = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -82,7 +79,7 @@ namespace Wallet.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
-                    WalletId = table.Column<long>(type: "bigint", nullable: true),
+                    WalletId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>

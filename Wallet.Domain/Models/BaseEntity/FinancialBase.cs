@@ -3,9 +3,9 @@ using Wallet.Domain.SeedWork;
 
 namespace Wallet.Domain.Models.BaseEntity;
 
-public abstract class FinancialBase : Entity<long>
+public abstract class FinancialBase : Entity<Guid>
 {
-    public FinancialBase(long id, decimal balance, Currency currency) : base(id)
+    public FinancialBase(Guid id, decimal balance, Currency currency) : base(id)
     {
         Balance = balance;
         Currency = currency;

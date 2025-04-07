@@ -12,8 +12,8 @@ internal class AccountConfiguration
 
         builder.HasKey(a => a.Id); // Устанавливаем ключевое поле Id
 
-        builder.Property(a => a.Id)
-            .ValueGeneratedOnAdd(); // Указываем, что Id генерируется при добавлении
+        //builder.Property(a => a.Id)
+        //    .ValueGeneratedOnAdd(); // Указываем, что Id генерируется при добавлении
 
         builder.Property(a => a.Balance)
             .IsRequired(); // Поле Balance обязательно

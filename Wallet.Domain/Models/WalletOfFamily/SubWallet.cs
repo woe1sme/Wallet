@@ -5,13 +5,13 @@ namespace Wallet.Domain.Models.WalletOfFamily;
 
 public class SubWallet : Wallet
 {
-    public SubWallet(Wallet parentWallet, long id, decimal balance, Currency currency, string description)
+    public SubWallet(Wallet parentWallet, Guid id, decimal balance, Currency currency, string description)
         : base(id, balance, currency, description)
     {
         ParentWallet = parentWallet ?? throw new SubWalletException($"Property {nameof(parentWallet)} cannot be null", new ArgumentNullException(nameof(parentWallet)));
         _familyMembers = new List<FamilyMember>();
     }
-    public SubWallet(long id, decimal balance, Currency currency, string description)
+    public SubWallet(Guid id, decimal balance, Currency currency, string description)
         : base(id, balance, currency, description)
     {
         _familyMembers = new List<FamilyMember>();

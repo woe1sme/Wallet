@@ -9,7 +9,7 @@ namespace Wallet.Domain.Models.WalletOfFamily;
 /// </summary>
 public class Wallet : FinancialBase
 {
-    public Wallet(long id, decimal balance, Currency currency, string description)
+    public Wallet(Guid id, decimal balance, Currency currency, string description)
         : base(id, balance, currency)
     {
         Description = description ?? throw new WalletException($"Property {nameof(description)} cannot be empty", new AggregateException(nameof(description)));
@@ -90,7 +90,7 @@ public class Wallet : FinancialBase
 
         try
         {
-            var subWallet = new SubWallet(this, 0, defaultBalance, Currency, description);
+            var subWallet = new SubWallet(this, Guid.NewGuid(), defaultBalance, Currency, description);
             subWallet.AddFamily(Family);
             _subWallets.Add(subWallet);
             return subWallet;

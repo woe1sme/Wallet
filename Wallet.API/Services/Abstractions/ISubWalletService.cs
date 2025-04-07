@@ -20,7 +20,7 @@ public interface ISubWalletService
     /// <param name="subWalletUpdateModel">Модель данных для обновления подкошелька.</param>
     /// <param name="cancellation">Токен отмены операции.</param>
     /// <returns>Обновлённый подкошелёк.</returns>
-    public Task<SubWalletReadModel> UpdateSubWallet(long id, SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation);
+    public Task<SubWalletReadModel> UpdateSubWallet(Guid id, SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation);
 
     /// <summary>
     /// Удаляет подкошелёк по указанному идентификатору.
@@ -28,7 +28,7 @@ public interface ISubWalletService
     /// <param name="id">Идентификатор подкошелька.</param>
     /// <param name="cancellation">Токен отмены операции.</param>
     /// <returns>Результат операции удаления.</returns>
-    public Task<bool> DeleteSubWallet(long id, CancellationToken cancellation);
+    public Task<bool> DeleteSubWallet(Guid id, CancellationToken cancellation);
 
     /// <summary> 
     /// Переводит указанную сумму денег между основным кошельком и подкошельком. 
@@ -53,5 +53,5 @@ public interface ISubWalletService
     /// <param name="subWalletId">(обязательный): Id подкошелька</param>
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Подкошелёк с указанным Id</returns>
-    public Task<SubWalletReadModel> GetSubWallet(long subWalletId, CancellationToken cancellation);
+    public Task<SubWalletReadModel> GetSubWallet(Guid subWalletId, CancellationToken cancellation);
 }

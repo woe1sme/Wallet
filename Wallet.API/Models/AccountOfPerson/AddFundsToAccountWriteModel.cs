@@ -4,8 +4,8 @@ namespace Wallet.API.Models.AccountOfPerson
 {
     public class AddFundsToAccountWriteModel : IWriteModel
     {
-        public long AccountId { get; set; }
+        public Guid AccountId { get; set; }
         public decimal Amount{ get; set; } 
-        public long ProfileId { get; set; }
+        public Guid ProfileId { get; set; }
     }
 }

@@ -36,7 +36,7 @@ public interface IWalletService
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Кошелёк с указанным Id</returns>
     /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при получении кошелька</exception>
-    public Task<WalletOfFamily.WalletReadModel> GetWallet(long walletId, CancellationToken cancellation);
+    public Task<WalletOfFamily.WalletReadModel> GetWallet(Guid walletId, CancellationToken cancellation);
 
     /// <summary>
     /// Обновляет информацию по кошельку
@@ -46,7 +46,7 @@ public interface IWalletService
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Обновлённая информация по кошельку</returns>
     /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при обновлении кошелька</exception>
-    public Task<WalletReadModel> UpdateWallet(long walletId, WalletWriteModel updateWallet, CancellationToken cancellation);
+    public Task<WalletReadModel> UpdateWallet(Guid walletId, WalletWriteModel updateWallet, CancellationToken cancellation);
 
 
     /// <summary> 
@@ -55,7 +55,7 @@ public interface IWalletService
     /// <param name="walletId">Идентификатор удаляемого кошелька.</param> 
     /// <param name="cancellation">Токен отмены операции.</param> 
     /// <returns>Задача выполнения операции удаления кошелька.</returns>
-    public Task DeleteWallet(long walletId, CancellationToken cancellation);
+    public Task DeleteWallet(Guid walletId, CancellationToken cancellation);
 
     /// <summary> 
     /// Переводит указанную сумму денег между основным кошельком и подкошельком. 

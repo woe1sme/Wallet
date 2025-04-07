@@ -4,8 +4,8 @@ namespace Wallet.API.Models.AccountOfPerson;
 
 public record AccountTransferFundsWriteModel : IWriteModel
 {
-    public long ProfileId { get; set; }
-    public long FromAccountId { get; init; }
-    public long ToWalletId { get; init; }
+    public Guid ProfileId { get; set; }
+    public Guid FromAccountId { get; init; }
+    public Guid ToWalletId { get; init; }
     public decimal Amount { get; init; }
 }

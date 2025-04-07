@@ -31,7 +31,7 @@ public interface IAccountService
     /// <param name="accountId">Id персонального счёта</param>
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Персональный счёт с указанным Id</returns>
-    public Task<AccountReadModel> GetAccount(long accountId, CancellationToken cancellation);
+    public Task<AccountReadModel> GetAccount(Guid accountId, CancellationToken cancellation);
 
     /// <summary>
     /// Обновляет информацию по персональному счёту
@@ -40,7 +40,7 @@ public interface IAccountService
     /// <param name="updateAccount">Данные для обновления</param>
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Обновленная информация по персональному счёту</returns>
-    public Task<AccountReadModel> UpdateAccount(long accountId, AccountWriteModel updateAccount, CancellationToken cancellation);
+    public Task<AccountReadModel> UpdateAccount(Guid accountId, AccountWriteModel updateAccount, CancellationToken cancellation);
 
     /// <summary> 
     /// Удаляет персональный счёт по указанному идентификатору. 
@@ -48,7 +48,7 @@ public interface IAccountService
     /// <param name="accountId">Идентификатор удаляемого персонального счёта.</param> 
     /// <param name="cancellation">Токен отмены операции.</param> 
     /// <returns>Задача выполнения операции удаления персонального счёта.</returns>
-    public Task DeleteAccount(long accountId, CancellationToken cancellation);
+    public Task DeleteAccount(Guid accountId, CancellationToken cancellation);
 
     /// <summary> 
     /// Переводит указанную сумму денег между персональными счетами. 

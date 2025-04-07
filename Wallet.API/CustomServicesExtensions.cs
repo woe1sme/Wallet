@@ -68,10 +68,10 @@ namespace Wallet.API
 
         public static IServiceCollection AddCustomRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IRepository<WalletOfFamily.Wallet, long>, WalletRepository<WalletOfFamily.Wallet, long>>();
+            services.AddScoped<IRepository<WalletOfFamily.Wallet, Guid>, WalletRepository<WalletOfFamily.Wallet, Guid>>();
             services.AddScoped<IRepository<WalletOfFamily.Family, Guid>, FamilyRepository<WalletOfFamily.Family, Guid>>();
-            services.AddScoped<ISubWalletRepository<WalletOfFamily.SubWallet, long>, SubWalletRepository<WalletOfFamily.SubWallet, long>>();
-            services.AddScoped<IAccountRepository<Account, long>, AccountRepository<Account, long>>();
+            services.AddScoped<ISubWalletRepository<WalletOfFamily.SubWallet, Guid>, SubWalletRepository<WalletOfFamily.SubWallet, Guid>>();
+            services.AddScoped<IAccountRepository<Account, Guid>, AccountRepository<Account, Guid>>();
             return services;
         }
 
@@ -98,7 +98,6 @@ namespace Wallet.API
     
         public static IServiceCollection AddCustomMassTransit(this IServiceCollection services)
         {
-            
             services.AddMassTransit(x =>
             {
                 x.AddConsumers(Assembly.GetEntryAssembly());

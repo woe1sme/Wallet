@@ -18,7 +18,7 @@ namespace Wallet.API.Services
     /// </summary>
     public class WalletService : IWalletService
     {
-        private readonly IRepository<WalletOfFamily.Wallet, long> _walletRepository;
+        private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
         private readonly IRepository<WalletOfFamily.Family, Guid> _familyRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<WalletService> _logger;
@@ -30,7 +30,7 @@ namespace Wallet.API.Services
         /// <param name="familyRepository">Репозиторий для работы с семьями (обязательный)</param>
         /// <param name="mapper">Сервис для маппинга объектов (обязательный)</param>
         /// <exception cref="WalletAPIException">Выбрасывается если свойство имеет NULL</exception>
-        public WalletService(IRepository<WalletOfFamily.Wallet, long> walletRepository,
+        public WalletService(IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
             IRepository<WalletOfFamily.Family, Guid> familyRepository,
             ILogger<WalletService> logger,
             IMapper mapper)
@@ -151,7 +151,7 @@ namespace Wallet.API.Services
         /// <param name="cancellation">Токен отмены операции</param>
         /// <returns>Обновлённая информация по кошельку</returns>
         /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при обновлении кошелька</exception>
-        public async Task<WalletReadModel> UpdateWallet(long walletId, WalletWriteModel updateWallet, CancellationToken cancellation)
+        public async Task<WalletReadModel> UpdateWallet(Guid walletId, WalletWriteModel updateWallet, CancellationToken cancellation)
         {
             try
             {
@@ -183,7 +183,7 @@ namespace Wallet.API.Services
         /// <param name="cancellation">Токен отмены операции</param>
         /// <returns>Кошелёк с указанным Id</returns>
         /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при получении кошелька</exception>
-        public async Task<WalletReadModel> GetWallet(long walletId, CancellationToken cancellation)
+        public async Task<WalletReadModel> GetWallet(Guid walletId, CancellationToken cancellation)
         {
             try
             {
@@ -209,7 +209,7 @@ namespace Wallet.API.Services
         /// Выбрасывается, если кошелёк содержит подкошельки или баланс кошелька больше нуля. 
         /// Выбрасывается, если произошла ошибка при удалении кошелька. 
         /// </exception>
-        public async Task DeleteWallet(long walletId, CancellationToken cancellation)
+        public async Task DeleteWallet(Guid walletId, CancellationToken cancellation)
         {
             try
             {

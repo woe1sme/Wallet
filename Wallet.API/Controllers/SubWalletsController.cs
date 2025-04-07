@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.WalletOfFamily;
 using Wallet.API.Services;
 using Wallet.API.Services.Abstractions;
+using Wallet.Contracts.Wallet;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,12 +17,16 @@ namespace Wallet.API.Controllers
     public class SubWalletsController : ControllerBase
     {
         private readonly ISubWalletService _subWalletService; 
-        private readonly ILogger<SubWalletsController> _logger; 
-        public SubWalletsController(ISubWalletService subWalletService, 
-            ILogger<SubWalletsController> logger) 
+        private readonly ILogger<SubWalletsController> _logger;
+        private readonly IPublishEndpoint _subWalletPublishEndpoint;
+        public SubWalletsController(
+            ISubWalletService subWalletService, 
+            ILogger<SubWalletsController> logger,
+            IPublishEndpoint subWalletPublishEndpoint) 
         { 
             _subWalletService = subWalletService ?? throw new WalletAPIException($"Property {nameof(subWalletService)} cannot be null");
             _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
+            _subWalletPublishEndpoint = subWalletPublishEndpoint;
         }
 
         /// <summary>
@@ -43,7 +49,11 @@ namespace Wallet.API.Controllers
             try
             {
                 var createdSubWallet = await _subWalletService.CreateSubWallet(subWallet, cancellation);
+
                 _logger.LogInformation("Sub-wallet created successfully with ID {SubWalletId}.", createdSubWallet.Id);
+
+                await _subWalletPublishEndpoint.Publish(new WalletCreated(createdSubWallet.Id, createdSubWallet.Description));
+
                 return Ok(createdSubWallet);
             }
             catch (WalletAPIException ex)
@@ -68,7 +78,7 @@ namespace Wallet.API.Controllers
         [SwaggerOperation(Summary = "Обновляет информацию подкошелька.", Description = "Обновлённый подкошелёк")]
         [SwaggerResponse(200, "Sub-wallet updated successfully.", typeof(SubWalletReadModel))]
         [SwaggerResponse(400, "Invalid request or business logic error.")]
-        public async Task<ActionResult<SubWalletReadModel>> Update([SwaggerParameter(Description = "Идентификатор подкошелька", Required = true)] long id, [SwaggerRequestBody("Модель данных для обновления подкошелька.", Required = true)] SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation)
+        public async Task<ActionResult<SubWalletReadModel>> Update([SwaggerParameter(Description = "Идентификатор подкошелька", Required = true)] Guid id, [SwaggerRequestBody("Модель данных для обновления подкошелька.", Required = true)] SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation)
         {
             _logger.LogInformation("Request to update sub-wallet with ID {id} received.", id);
 
@@ -99,7 +109,7 @@ namespace Wallet.API.Controllers
         [SwaggerOperation(Summary = "Удаляет подкошелёк по идентификатору.", Description = "Удаляет подкошелёк по указанному идентификатору. Операция невозможна, если баланс подкошелька не равен нулю или если у подкошелька есть подкошельки.")]
         [SwaggerResponse(204, "Sub-wallet was successfully deleted.")]
         [SwaggerResponse(400, "Invalid request or business logic error.")]
-        public async Task<IActionResult> Delete([SwaggerParameter(Description = "Идентификатор подкошелька", Required = true)] long id, CancellationToken cancellation)
+        public async Task<IActionResult> Delete([SwaggerParameter(Description = "Идентификатор подкошелька", Required = true)] Guid id, CancellationToken cancellation)
         {
             _logger.LogInformation("Request to delete sub-wallet with ID {id} received.", id);
 
@@ -182,7 +192,7 @@ namespace Wallet.API.Controllers
         [HttpGet("{id:long}")]
         [SwaggerOperation(Summary = "Получить подкошелёк по Id", Description = "Подкошелёк с указанным Id из базы данных.")]
         [SwaggerResponse(200, "Подкошелёк с указанным Id из базы данных.", typeof(SubWalletReadModel))]
-        public async Task<ActionResult<SubWalletReadModel>> GetSubWallet([SwaggerParameter(Description = "Id подкошелька", Required = true)] long id, CancellationToken cancellation)
+        public async Task<ActionResult<SubWalletReadModel>> GetSubWallet([SwaggerParameter(Description = "Id подкошелька", Required = true)] Guid id, CancellationToken cancellation)
         {
             try
             {

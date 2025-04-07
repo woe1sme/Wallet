@@ -14,8 +14,8 @@ namespace Wallet.API.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly IAccountRepository<Account, long> _accountRepository;
-    private readonly IRepository<WalletOfFamily.Wallet, long> _walletRepository;
+    private readonly IAccountRepository<Account, Guid> _accountRepository;
+    private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<AccountService> _logger;
 
@@ -26,8 +26,8 @@ public class AccountService : IAccountService
     /// <param name="logger">Сервис для логирования (обязательный)</param>
     /// <param name="mapper">Сервис для маппинга объектов (обязательный)</param>
     /// <exception cref="WalletAPIException">Выбрасывается если свойство имеет NULL</exception>
-    public AccountService(IAccountRepository<Account, long> accountRepository,
-        IRepository<WalletOfFamily.Wallet, long> walletRepository,
+    public AccountService(IAccountRepository<Account, Guid> accountRepository,
+        IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
         ILogger<AccountService> logger,
         IMapper mapper)
     {
@@ -78,7 +78,7 @@ public class AccountService : IAccountService
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Обновленная информация по персональному счету</returns>
     /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при обновлении персонального счета</exception>
-    public async Task<AccountReadModel> UpdateAccount(long accountId, AccountWriteModel updateAccount, CancellationToken cancellation)
+    public async Task<AccountReadModel> UpdateAccount(Guid accountId, AccountWriteModel updateAccount, CancellationToken cancellation)
     {
         try
         {
@@ -110,7 +110,7 @@ public class AccountService : IAccountService
     /// Выбрасывается, если баланс персонального счета больше нуля.
     /// Выбрасывается, если произошла ошибка при удалении персонального счета.
     /// </exception>
-    public async Task DeleteAccount(long accountId, CancellationToken cancellation)
+    public async Task DeleteAccount(Guid accountId, CancellationToken cancellation)
     {
         try
         {
@@ -254,7 +254,7 @@ public class AccountService : IAccountService
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Персональный счёт с указанным Id</returns>
     /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при получении персонального счёта</exception>
-    public async Task<AccountReadModel> GetAccount(long accountId, CancellationToken cancellation)
+    public async Task<AccountReadModel> GetAccount(Guid accountId, CancellationToken cancellation)
     {
         try
         {

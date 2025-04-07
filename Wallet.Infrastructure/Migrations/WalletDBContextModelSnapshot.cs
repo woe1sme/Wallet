@@ -24,11 +24,9 @@ namespace Wallet.Infrastructure.Migrations
 
             modelBuilder.Entity("Wallet.Domain.Models.AccountOfPerson.Account", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
@@ -41,8 +39,8 @@ namespace Wallet.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<long>("ProfileId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -86,8 +84,8 @@ namespace Wallet.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<long?>("WalletId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("WalletId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id")
                         .HasName("OwnerId");
@@ -103,11 +101,9 @@ namespace Wallet.Infrastructure.Migrations
 
             modelBuilder.Entity("Wallet.Domain.Models.WalletOfFamily.Wallet", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
@@ -150,11 +146,11 @@ namespace Wallet.Infrastructure.Migrations
                 {
                     b.HasBaseType("Wallet.Domain.Models.WalletOfFamily.Wallet");
 
-                    b.Property<long>("ParentWalletId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParentWalletId")
+                        .HasColumnType("uuid");
 
-                    b.Property<long?>("WalletId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("WalletId")
+                        .HasColumnType("uuid");
 
                     b.HasIndex("ParentWalletId");
 

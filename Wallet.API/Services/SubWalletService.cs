@@ -18,13 +18,13 @@ namespace Wallet.API.Services;
 
 public class SubWalletService : ISubWalletService
 {
-    private readonly ISubWalletRepository<WalletOfFamily.SubWallet, long> _subWalletRepository;
-    private readonly IRepository<WalletOfFamily.Wallet, long> _walletRepository;
+    private readonly ISubWalletRepository<WalletOfFamily.SubWallet, Guid> _subWalletRepository;
+    private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<SubWalletService> _logger;
 
-    public SubWalletService(ISubWalletRepository<WalletOfFamily.SubWallet, long> subWalletRepository,
-        IRepository<WalletOfFamily.Wallet, long> walletRepository,
+    public SubWalletService(ISubWalletRepository<WalletOfFamily.SubWallet, Guid> subWalletRepository,
+        IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
         ILogger<SubWalletService> logger,
         IMapper mapper)
     {
@@ -103,7 +103,7 @@ public class SubWalletService : ISubWalletService
     /// <exception cref="WalletAPIException">
     /// Выбрасывается, если произошла ошибка при обновлении подкошелька.
     /// </exception>
-    public async Task<SubWalletReadModel> UpdateSubWallet(long id, SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation)
+    public async Task<SubWalletReadModel> UpdateSubWallet(Guid id, SubWalletWriteModel subWalletUpdateModel, CancellationToken cancellation)
     {
         _logger.LogInformation("Attempting to update sub-wallet with ID {SubWalletId}.", id);
 
@@ -163,7 +163,7 @@ public class SubWalletService : ISubWalletService
     /// <param name="id">Идентификатор подкошелька.</param>
     /// <param name="cancellation">Токен отмены операции.</param>
     /// <returns>Результат операции удаления.</returns>
-    public async Task<bool> DeleteSubWallet(long id, CancellationToken cancellation)
+    public async Task<bool> DeleteSubWallet(Guid id, CancellationToken cancellation)
     {
         _logger.LogInformation("Attempting to delete sub-wallet with ID {id}.", id);
 
@@ -299,7 +299,7 @@ public class SubWalletService : ISubWalletService
     /// <param name="cancellation">Токен отмены операции</param>
     /// <returns>Подкошелёк с указанным Id</returns>
     /// <exception cref="WalletAPIException">Выбрасывается, если произошла ошибка при получении подкошелька</exception>
-    public async Task<SubWalletReadModel> GetSubWallet(long subWalletId, CancellationToken cancellation)
+    public async Task<SubWalletReadModel> GetSubWallet(Guid subWalletId, CancellationToken cancellation)
     {
         try
         {

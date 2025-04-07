@@ -4,6 +4,8 @@ using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.AccountOfPerson;
 using Wallet.API.Services.Abstractions;
+using MassTransit;
+using Wallet.Contracts.Account;
 
 namespace Wallet.API.Controllers;
 
@@ -13,6 +15,7 @@ public class AccountsController : ControllerBase
 {
     private readonly ILogger<AccountsController> _logger;
     private readonly IAccountService _accountService;
+    private readonly IPublishEndpoint _accountPublishEndpoint;
 
     /// <summary>
     /// Инициализирует новый экземпляр контроллера AccountsController
@@ -20,16 +23,17 @@ public class AccountsController : ControllerBase
     /// <param name="accountService">Сервис для работы с персональными счетами (обязательный)</param>
     /// <param name="logger">Сервис для логирования (обязательный)</param>
     /// <exception cref="WalletAPIException">Выбрасывается, если одно из свойств имеет NULL</exception>
-    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger)
+    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger, IPublishEndpoint accountPublishEndpoint)
     {
         _accountService = accountService ?? throw new WalletAPIException($"Property {nameof(accountService)} cannot be null");
         _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
+        _accountPublishEndpoint = accountPublishEndpoint;
     }
-    
+
     /// <summary>
-     /// Создать персональный счёт
-     /// </summary>
-     /// <returns>Созданный персональный счёт.</returns>
+    /// Создать персональный счёт
+    /// </summary>
+    /// <returns>Созданный персональный счёт.</returns>
     [HttpPost]
     [SwaggerOperation(Summary = "Создать персональный счёт", Description = "Возвращает созданный персональный счёт.")]
     [SwaggerResponse(200, "Возвращает созданный персональный счёт", typeof(AccountReadModel))]
@@ -37,7 +41,11 @@ public class AccountsController : ControllerBase
     {
         try
         {
-            return await _accountService.CreatePersonalAccount(account, cancellation);
+            var resultAccount = await _accountService.CreatePersonalAccount(account, cancellation);
+
+            await _accountPublishEndpoint.Publish(new AccountCreated(resultAccount.Id, resultAccount.Description, resultAccount.ProfileId));
+
+            return Ok(resultAccount);
         }
         catch (WalletAPIException ex)
         {
@@ -75,7 +83,7 @@ public class AccountsController : ControllerBase
     [HttpGet("{id:long}")]
     [SwaggerOperation(Summary = "Получить персональный счёт по Id", Description = "Персональный счёт с указанным Id из базы данных.")]
     [SwaggerResponse(200, "Персональный счёт с указанным Id из базы данных.", typeof(AccountReadModel))]
-    public async Task<ActionResult<AccountReadModel>> GetAccount([SwaggerParameter(Description = "Id счёта", Required = true)] long id, CancellationToken cancellation)
+    public async Task<ActionResult<AccountReadModel>> GetAccount([SwaggerParameter(Description = "Id счёта", Required = true)] Guid id, CancellationToken cancellation)
     {
         try
         {
@@ -96,11 +104,15 @@ public class AccountsController : ControllerBase
     [HttpPut("{id:long}")]
     [SwaggerOperation(Summary = "Обновить информацию по персональному счёту", Description = "Возвращает обновленную информацию по персональному счёту.")]
     [SwaggerResponse(200, "Возвращает обновленную информацию по персональному счёту", typeof(AccountReadModel))]
-    public async Task<ActionResult<AccountReadModel>> Update([SwaggerParameter(Description = "Id счёта", Required = true)] long id, [SwaggerRequestBody(Description = "Данные для обновления", Required = true)] AccountWriteModel updateAccount, CancellationToken cancellation)
+    public async Task<ActionResult<AccountReadModel>> Update([SwaggerParameter(Description = "Id счёта", Required = true)] Guid id, [SwaggerRequestBody(Description = "Данные для обновления", Required = true)] AccountWriteModel updateAccount, CancellationToken cancellation)
     {
         try
         {
-            return await _accountService.UpdateAccount(id, updateAccount, cancellation);
+            var updatedAccount = await _accountService.UpdateAccount(id, updateAccount, cancellation);
+
+            await _accountPublishEndpoint.Publish(new AccountUpdated(id, updateAccount.Description));
+
+            return Ok(updatedAccount);
         }
         catch (WalletAPIException ex)
         {
@@ -124,11 +136,12 @@ public class AccountsController : ControllerBase
     [SwaggerOperation(Summary = "Удалить персональный счёт", Description = "Возвращает статус 204 при успешном выполнении.")]
     [SwaggerResponse(204, "Возвращает при успешном выполнении")]
     [SwaggerResponse(400, "Ошибка при удалении счёта", typeof(string))]
-    public async Task<IActionResult> Delete([SwaggerParameter(Description = "Id персонального счёта", Required = true)] long id, CancellationToken cancellation)
+    public async Task<IActionResult> Delete([SwaggerParameter(Description = "Id персонального счёта", Required = true)] Guid id, CancellationToken cancellation)
     {
         try
         {
             await _accountService.DeleteAccount(id, cancellation);
+            await _accountPublishEndpoint.Publish(new AccountDeleted(id));
             return NoContent();
         }
         catch (WalletAPIException ex)

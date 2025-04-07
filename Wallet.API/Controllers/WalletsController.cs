@@ -1,6 +1,8 @@
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wallet.API.Applications.Exceptions;
+using Wallet.Contracts.Wallet;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.WalletOfFamily;
 using Wallet.API.Services.Abstractions;
@@ -14,12 +16,15 @@ namespace Wallet.API.Controllers
     {
         private readonly ILogger<WalletsController> _logger;
         private readonly IWalletService _walletService;
+        private readonly IPublishEndpoint _walletPublishEndpoint;
 
         public WalletsController(IWalletService walletService,
-            ILogger<WalletsController> logger)
+            ILogger<WalletsController> logger,
+            IPublishEndpoint walletPublishEndpoint)
         {
             _walletService = walletService ?? throw new WalletAPIException($"Property {nameof(walletService)} cannot be null");
             _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
+            _walletPublishEndpoint = walletPublishEndpoint;
         }
 
 
@@ -52,7 +57,7 @@ namespace Wallet.API.Controllers
         [HttpGet("{id:long}")]
         [SwaggerOperation(Summary = "Получить кошелёк по Id", Description = "Кошелёк с указанным Id из базы данных.")]
         [SwaggerResponse(200, "Кошелёк с указанным Id из базы данных.", typeof(WalletOfFamily.WalletReadModel))]
-        public async Task<ActionResult<WalletOfFamily.WalletReadModel>> GetWallet([SwaggerParameter(Description = "Id кошелька", Required = true)] long id, CancellationToken cancellation)
+        public async Task<ActionResult<WalletOfFamily.WalletReadModel>> GetWallet([SwaggerParameter(Description = "Id кошелька", Required = true)] Guid id, CancellationToken cancellation)
         {
             try
             {
@@ -78,7 +83,11 @@ namespace Wallet.API.Controllers
         {
             try
             {
-                return await _walletService.CreateWallet(wallet, cancellation);
+                var resultWallet = await _walletService.CreateWallet(wallet, cancellation);
+
+                await _walletPublishEndpoint.Publish(new WalletCreated(resultWallet.Id, resultWallet.Description));
+
+                return Ok(resultWallet);
             }
             catch (WalletAPIException ex)
             {
@@ -96,7 +105,7 @@ namespace Wallet.API.Controllers
         [HttpPut("{id:long}")]
         [SwaggerOperation(Summary = "Обновить информацию по кошельку", Description = "Возвращает обновленную информацию по кошельку.")]
         [SwaggerResponse(200, "Возвращает обновленную информацию по кошельку", typeof(WalletOfFamily.WalletReadModel))]
-        public async Task<ActionResult<WalletOfFamily.WalletReadModel>> Update([SwaggerParameter(Description = "Id кошелька", Required = true)] long id, [SwaggerRequestBody(Description = "Данные для обновления", Required = true)] WalletWriteModel updateWallet, CancellationToken cancellation)
+        public async Task<ActionResult<WalletOfFamily.WalletReadModel>> Update([SwaggerParameter(Description = "Id кошелька", Required = true)] Guid id, [SwaggerRequestBody(Description = "Данные для обновления", Required = true)] WalletWriteModel updateWallet, CancellationToken cancellation)
         {
             try
             {
@@ -120,7 +129,7 @@ namespace Wallet.API.Controllers
         [SwaggerOperation(Summary = "Удалить кошелёк", Description = "Возвращает статус 204 при успешном выполнении.")]
         [SwaggerResponse(204, "Возвращает при успешном выполнении")]
         [SwaggerResponse(400, "Ошибка при удалении кошелька", typeof(string))]
-        public async Task<IActionResult> Delete([SwaggerParameter(Description = "Id кошелька", Required = true)] long id, CancellationToken cancellation)
+        public async Task<IActionResult> Delete([SwaggerParameter(Description = "Id кошелька", Required = true)] Guid id, CancellationToken cancellation)
         {
             try
             {

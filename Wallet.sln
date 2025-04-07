@@ -8,8 +8,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wallet.Infrastructure", "Wallet.Infrastructure\Wallet.Infrastructure.csproj", "{433C5D7B-B893-486E-99CB-58342288C67E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wallet.API", "Wallet.API\Wallet.API.csproj", "{DC81B193-616E-4D3E-A656-8A6E754514A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F} = {F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}
+	EndProjectSection
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4113EF93-2A85-4DD9-A400-3F5B8868ADDF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wallet.Contracts", "Wallet.Contracts\Wallet.Contracts.csproj", "{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +38,15 @@ Global
 		{4113EF93-2A85-4DD9-A400-3F5B8868ADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4113EF93-2A85-4DD9-A400-3F5B8868ADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4113EF93-2A85-4DD9-A400-3F5B8868ADDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3B50EB1-EE9B-42D1-B919-ED843FF4A22F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A75D76EB-7E18-4B31-82EE-8486D4173819}
 	EndGlobalSection
 EndGlobal

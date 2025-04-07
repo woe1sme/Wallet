@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	
+	<PackageId>Wallet.Contracts.d6e009cb-49ff-4463-af4d-792c3ca82969</PackageId>
+	<Version>1.0.0</Version>
+	<Authors>woe1sme</Authors>
+	<Company>woe1sme</Company>
+	<Description>Contracts for Wallet API</Description>
+  </PropertyGroup>
+
+</Project>
