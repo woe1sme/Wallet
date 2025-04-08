@@ -1,12 +1,9 @@
-﻿using MassTransit;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.WalletOfFamily;
-using Wallet.API.Services;
 using Wallet.API.Services.Abstractions;
-using Wallet.Contracts.Wallet;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,15 +15,12 @@ namespace Wallet.API.Controllers
     {
         private readonly ISubWalletService _subWalletService; 
         private readonly ILogger<SubWalletsController> _logger;
-        private readonly IPublishEndpoint _subWalletPublishEndpoint;
         public SubWalletsController(
             ISubWalletService subWalletService, 
-            ILogger<SubWalletsController> logger,
-            IPublishEndpoint subWalletPublishEndpoint) 
+            ILogger<SubWalletsController> logger) 
         { 
             _subWalletService = subWalletService ?? throw new WalletAPIException($"Property {nameof(subWalletService)} cannot be null");
             _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
-            _subWalletPublishEndpoint = subWalletPublishEndpoint;
         }
 
         /// <summary>
@@ -51,8 +45,6 @@ namespace Wallet.API.Controllers
                 var createdSubWallet = await _subWalletService.CreateSubWallet(subWallet, cancellation);
 
                 _logger.LogInformation("Sub-wallet created successfully with ID {SubWalletId}.", createdSubWallet.Id);
-
-                await _subWalletPublishEndpoint.Publish(new WalletCreated(createdSubWallet.Id, createdSubWallet.Description));
 
                 return Ok(createdSubWallet);
             }

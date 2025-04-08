@@ -1,3 +1,3 @@
 ﻿namespace Wallet.Contracts.Wallet;
 
-public record WalletUpdated(long Id, string WalletName);
+public record WalletUpdated(Guid Id, string WalletName): IContractMessage;

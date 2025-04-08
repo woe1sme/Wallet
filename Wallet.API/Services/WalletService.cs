@@ -4,11 +4,8 @@ using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.WalletOfFamily;
 using Wallet.API.Services.Abstractions;
-using Wallet.Domain.Models.Enums;
-using Wallet.Domain.Models.WalletOfFamily;
+using Wallet.Contracts.Wallet;
 using Wallet.Domain.SeedWork;
-using Wallet.Infrastructure;
-using Wallet.Infrastructure.Repositories;
 using WalletOfFamily = Wallet.Domain.Models.WalletOfFamily;
 
 namespace Wallet.API.Services
@@ -21,6 +18,7 @@ namespace Wallet.API.Services
         private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
         private readonly IRepository<WalletOfFamily.Family, Guid> _familyRepository;
         private readonly IMapper _mapper;
+        private readonly IPublishService _publishService;
         private readonly ILogger<WalletService> _logger;
 
         /// <summary>
@@ -33,12 +31,14 @@ namespace Wallet.API.Services
         public WalletService(IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
             IRepository<WalletOfFamily.Family, Guid> familyRepository,
             ILogger<WalletService> logger,
-            IMapper mapper)
+            IMapper mapper,
+            IPublishService publishService)
         {
             _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
             _walletRepository = walletRepository ?? throw new WalletAPIException($"Property {nameof(walletRepository)} cannot be null");
             _familyRepository = familyRepository ?? throw new WalletAPIException($"Property {nameof(familyRepository)} cannot be null");
             _mapper = mapper ?? throw new WalletAPIException($"Property {nameof(mapper)} cannot be null");
+            _publishService = publishService;
         }
 
         /// <summary>
@@ -72,6 +72,8 @@ namespace Wallet.API.Services
 
                 await _walletRepository.AddAsync(wallet, cancellation);
                 await _walletRepository.SaveAsync(cancellation);
+
+                await _publishService.PublishAsync(message: new WalletCreated(wallet.Id, wallet.Description));
 
                 return _mapper.Map<WalletReadModel>(wallet);
 
@@ -167,6 +169,9 @@ namespace Wallet.API.Services
                 await _walletRepository.SaveAsync(cancellation);
 
                 _logger.LogInformation("Successfully updated wallet with Id {walletId}.", walletId);
+
+                await _publishService.PublishAsync(message: new WalletUpdated(wallet.Id, wallet.Description));
+
                 return _mapper.Map<WalletReadModel>(wallet);
             }
             catch (Exception ex)
@@ -229,6 +234,9 @@ namespace Wallet.API.Services
 
                 await _walletRepository.DeleteAsync(walletId, cancellation);
                 await _walletRepository.SaveAsync(cancellation);
+
+                await _publishService.PublishAsync(message: new WalletDeleted(wallet.Id));
+
                 _logger.LogInformation("Successfully deleted wallet {walletId}.", walletId);
             }
             catch (Exception ex)

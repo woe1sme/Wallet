@@ -80,6 +80,7 @@ namespace Wallet.API
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<ISubWalletService, SubWalletService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IPublishService, PublishService>();
             return services;
         }
 

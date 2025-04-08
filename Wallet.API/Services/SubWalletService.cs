@@ -2,36 +2,36 @@
 using Wallet.API.Services.Abstractions;
 using WalletOfFamily = Wallet.Domain.Models.WalletOfFamily;
 using Wallet.Domain.SeedWork;
-using Wallet.Infrastructure.Repositories;
 using AutoMapper;
 using Wallet.API.Applications.Exceptions;
 using Wallet.Domain.Repositories;
-using Wallet.Domain.Models.Enums;
-using System.Collections.Generic;
 using Wallet.Domain.Models.WalletOfFamily;
-using System.Linq;
-using Wallet.Domain.Models.BaseEntity;
 using Microsoft.EntityFrameworkCore;
 using Wallet.API.Models.Base;
+using Wallet.Contracts.Wallet;
 
 namespace Wallet.API.Services;
 
 public class SubWalletService : ISubWalletService
 {
-    private readonly ISubWalletRepository<WalletOfFamily.SubWallet, Guid> _subWalletRepository;
+    private readonly ISubWalletRepository<SubWallet, Guid> _subWalletRepository;
     private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
     private readonly IMapper _mapper;
+    private readonly IPublishService _publishService;
     private readonly ILogger<SubWalletService> _logger;
 
-    public SubWalletService(ISubWalletRepository<WalletOfFamily.SubWallet, Guid> subWalletRepository,
+    public SubWalletService(
+        ISubWalletRepository<SubWallet, Guid> subWalletRepository,
         IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
         ILogger<SubWalletService> logger,
-        IMapper mapper)
+        IMapper mapper,
+        IPublishService publishService)
     {
         _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
         _subWalletRepository = subWalletRepository ?? throw new WalletAPIException($"Property {nameof(subWalletRepository)} cannot be null");
         _walletRepository = walletRepository ?? throw new WalletAPIException($"Property {nameof(walletRepository)} cannot be null");
         _mapper = mapper ?? throw new WalletAPIException($"Property {nameof(mapper)} cannot be null");
+        _publishService = publishService;
     }
 
     /// <summary>
@@ -82,6 +82,9 @@ public class SubWalletService : ISubWalletService
             // Сохранение подкошелька в репозитории
             await _subWalletRepository.AddAsync(newSubWallet, cancellation);
             await _subWalletRepository.SaveAsync(cancellation);
+
+            await _publishService.PublishAsync(message: new WalletCreated(newSubWallet.Id, newSubWallet.Description));
+
             _logger.LogInformation("New sub-wallet successfully added to the repository and saved.");
 
             return _mapper.Map<SubWalletReadModel>(newSubWallet);
@@ -143,6 +146,8 @@ public class SubWalletService : ISubWalletService
             await _subWalletRepository.SaveAsync(cancellation);
             _logger.LogInformation("Successfully updated and saved sub-wallet with ID {SubWalletId}.", id);
 
+            await _publishService.PublishAsync(message: new WalletUpdated(subWallet.Id, subWallet.Description));
+
             return _mapper.Map<SubWalletReadModel>(subWallet);
         }
         catch (WalletAPIException ex)
@@ -187,6 +192,9 @@ public class SubWalletService : ISubWalletService
             await _subWalletRepository.SaveAsync(cancellation);
 
             _logger.LogInformation("Deleted sub-wallet with ID {id} successfully.", id);
+
+            await _publishService.PublishAsync(message: new WalletDeleted(subWallet.Id));
+
             return true;
         }
         catch (WalletAPIException ex)

@@ -2,13 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.AccountOfPerson;
-using Wallet.API.Services.Abstractions;
-using Wallet.Domain.Models.AccountOfPerson;
-using Wallet.Domain.SeedWork;
-using Wallet.Domain.Repositories;
-using Wallet.Infrastructure.Repositories;
-using WalletOfFamily = Wallet.Domain.Models.WalletOfFamily;
 using Wallet.API.Models.Base;
+using Wallet.API.Services.Abstractions;
+using Wallet.Contracts.Account;
+using Wallet.Contracts.Wallet;
+using Wallet.Domain.Models.AccountOfPerson;
+using Wallet.Domain.Models.WalletOfFamily;
+using Wallet.Domain.Repositories;
+using Wallet.Domain.SeedWork;
+using WalletOfFamily = Wallet.Domain.Models.WalletOfFamily;
 
 namespace Wallet.API.Services;
 
@@ -17,6 +19,7 @@ public class AccountService : IAccountService
     private readonly IAccountRepository<Account, Guid> _accountRepository;
     private readonly IRepository<WalletOfFamily.Wallet, Guid> _walletRepository;
     private readonly IMapper _mapper;
+    private readonly IPublishService _publishService;
     private readonly ILogger<AccountService> _logger;
 
     /// <summary>
@@ -26,15 +29,18 @@ public class AccountService : IAccountService
     /// <param name="logger">Сервис для логирования (обязательный)</param>
     /// <param name="mapper">Сервис для маппинга объектов (обязательный)</param>
     /// <exception cref="WalletAPIException">Выбрасывается если свойство имеет NULL</exception>
-    public AccountService(IAccountRepository<Account, Guid> accountRepository,
+    public AccountService(
+        IAccountRepository<Account, Guid> accountRepository,
         IRepository<WalletOfFamily.Wallet, Guid> walletRepository,
         ILogger<AccountService> logger,
-        IMapper mapper)
+        IMapper mapper,
+        IPublishService publishService)
     {
         _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
         _accountRepository = accountRepository ?? throw new WalletAPIException($"Property {nameof(accountRepository)} cannot be null");
         _walletRepository = walletRepository ?? throw new WalletAPIException($"Property {nameof(walletRepository)} cannot be null");
         _mapper = mapper ?? throw new WalletAPIException($"Property {nameof(mapper)} cannot be null");
+        _publishService = publishService;
     }
 
     /// <summary>
@@ -60,6 +66,8 @@ public class AccountService : IAccountService
 
             await _accountRepository.AddAsync(account, cancellation);
             await _accountRepository.SaveAsync(cancellation);
+
+            await _publishService.PublishAsync(message: new AccountCreated(account.Id, account.Description, account.ProfileId));
 
             return _mapper.Map<AccountReadModel>(account);
         }
@@ -91,6 +99,9 @@ public class AccountService : IAccountService
             await _accountRepository.SaveAsync(cancellation);
 
             _logger.LogInformation("Successfully updated account with Id {accountId}.", accountId);
+
+            await _publishService.PublishAsync(message: new AccountUpdated(account.Id, account.Description));
+
             return _mapper.Map<AccountReadModel>(account);
         }
         catch (Exception ex)
@@ -124,7 +135,10 @@ public class AccountService : IAccountService
 
             await _accountRepository.DeleteAsync(accountId, cancellation);
             await _accountRepository.SaveAsync(cancellation);
+
             _logger.LogInformation("Successfully deleted account {accountId}.", accountId);
+
+            await _publishService.PublishAsync(message: new AccountDeleted(account.Id));
         }
         catch (Exception ex)
         {

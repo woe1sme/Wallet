@@ -1,3 +1,3 @@
 ﻿namespace Wallet.Contracts.Wallet;
 
-public record WalletDeleted(Guid Id);
+public record WalletDeleted(Guid Id) : IContractMessage;

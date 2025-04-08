@@ -1,8 +1,6 @@
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wallet.API.Applications.Exceptions;
-using Wallet.Contracts.Wallet;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.WalletOfFamily;
 using Wallet.API.Services.Abstractions;
@@ -16,15 +14,12 @@ namespace Wallet.API.Controllers
     {
         private readonly ILogger<WalletsController> _logger;
         private readonly IWalletService _walletService;
-        private readonly IPublishEndpoint _walletPublishEndpoint;
 
         public WalletsController(IWalletService walletService,
-            ILogger<WalletsController> logger,
-            IPublishEndpoint walletPublishEndpoint)
+            ILogger<WalletsController> logger)
         {
             _walletService = walletService ?? throw new WalletAPIException($"Property {nameof(walletService)} cannot be null");
             _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
-            _walletPublishEndpoint = walletPublishEndpoint;
         }
 
 
@@ -84,8 +79,6 @@ namespace Wallet.API.Controllers
             try
             {
                 var resultWallet = await _walletService.CreateWallet(wallet, cancellation);
-
-                await _walletPublishEndpoint.Publish(new WalletCreated(resultWallet.Id, resultWallet.Description));
 
                 return Ok(resultWallet);
             }

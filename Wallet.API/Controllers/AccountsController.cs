@@ -4,8 +4,6 @@ using Wallet.API.Applications.Exceptions;
 using Wallet.API.Models.Base;
 using Wallet.API.Models.AccountOfPerson;
 using Wallet.API.Services.Abstractions;
-using MassTransit;
-using Wallet.Contracts.Account;
 
 namespace Wallet.API.Controllers;
 
@@ -15,7 +13,6 @@ public class AccountsController : ControllerBase
 {
     private readonly ILogger<AccountsController> _logger;
     private readonly IAccountService _accountService;
-    private readonly IPublishEndpoint _accountPublishEndpoint;
 
     /// <summary>
     /// Инициализирует новый экземпляр контроллера AccountsController
@@ -23,11 +20,10 @@ public class AccountsController : ControllerBase
     /// <param name="accountService">Сервис для работы с персональными счетами (обязательный)</param>
     /// <param name="logger">Сервис для логирования (обязательный)</param>
     /// <exception cref="WalletAPIException">Выбрасывается, если одно из свойств имеет NULL</exception>
-    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger, IPublishEndpoint accountPublishEndpoint)
+    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger)
     {
         _accountService = accountService ?? throw new WalletAPIException($"Property {nameof(accountService)} cannot be null");
         _logger = logger ?? throw new WalletAPIException($"Property {nameof(logger)} cannot be null");
-        _accountPublishEndpoint = accountPublishEndpoint;
     }
 
     /// <summary>
@@ -42,8 +38,6 @@ public class AccountsController : ControllerBase
         try
         {
             var resultAccount = await _accountService.CreatePersonalAccount(account, cancellation);
-
-            await _accountPublishEndpoint.Publish(new AccountCreated(resultAccount.Id, resultAccount.Description, resultAccount.ProfileId));
 
             return Ok(resultAccount);
         }
@@ -110,8 +104,6 @@ public class AccountsController : ControllerBase
         {
             var updatedAccount = await _accountService.UpdateAccount(id, updateAccount, cancellation);
 
-            await _accountPublishEndpoint.Publish(new AccountUpdated(id, updateAccount.Description));
-
             return Ok(updatedAccount);
         }
         catch (WalletAPIException ex)
@@ -141,7 +133,6 @@ public class AccountsController : ControllerBase
         try
         {
             await _accountService.DeleteAccount(id, cancellation);
-            await _accountPublishEndpoint.Publish(new AccountDeleted(id));
             return NoContent();
         }
         catch (WalletAPIException ex)
